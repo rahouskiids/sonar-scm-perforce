@@ -63,7 +63,9 @@ public class PerforceBlameCommand extends BlameCommand {
     }
     @Override
     public void blame(BlameInput input, BlameOutput output) {
-      FileSystem fs = input.fileSystem();
+	  FileSystem fs = input.fileSystem();
+      System.out.println("Working directory: " + fs.baseDir().getAbsolutePath());
+	  
       LOG.debug("Working directory: " + fs.baseDir().getAbsolutePath());
       PerforceExecutor executor = new PerforceExecutor(config, fs.baseDir());
       try {
@@ -86,7 +88,8 @@ public class PerforceBlameCommand extends BlameCommand {
 	// Get file annotations
 	List<IFileAnnotation> fileAnnotations = server.getFileAnnotations(fileSpecs, getFileAnnotationOptions());
 	if (fileAnnotations.size() == 1 && fileAnnotations.get(0).getDepotPath() == null) {
-	    LOG.debug("File " + inputFile + " is not submitted. Skipping it.");
+		LOG.debug("File " + inputFile + " is not submitted. Skipping it.");
+		System.out.println("File " + inputFile + " is not submitted. Skipping it.");
 	    return;
 	}
 
@@ -99,6 +102,7 @@ public class PerforceBlameCommand extends BlameCommand {
 		    && !FileSpecOpStatus.INFO.equals(revisionFileSpec.getOpStatus())) {
 		String statusMessage = fileSpec.getStatusMessage();
 		LOG.debug("Unable to get revisions of file " + inputFile + " [" + statusMessage + "]. Skipping it.");
+		System.out.println("Unable to get revisions of file " + inputFile + " [" + statusMessage + "]. Skipping it.");
 		return;
 	    }
 	    for (IFileRevisionData revisionData : entry.getValue()) {
@@ -125,7 +129,6 @@ public class PerforceBlameCommand extends BlameCommand {
 	List<BlameLine> lines = new ArrayList<BlameLine>();
 	for (IFileAnnotation fileAnnotation : fileAnnotations) {
 	    int lowerChangelistId = fileAnnotation.getLower();
-
 	    BlameLine blameLine = blameLineFromHistory(lowerChangelistId);
 	    if (blameLine == null) {
 		LOG.debug("Changelist " + lowerChangelistId + " was not found in history for " + inputFile
@@ -211,7 +214,7 @@ public class PerforceBlameCommand extends BlameCommand {
     @Nonnull
     private static IFileSpec createFileSpec(@Nonnull InputFile inputFile) {
 	
-	IFileSpec fileSpec = new FileSpec(PerforceExecutor.encodeWildcards(inputFile.filename()));
+	IFileSpec fileSpec = new FileSpec(PerforceExecutor.encodeWildcards(inputFile.absolutePath()));
 	    fileSpec.setEndRevision(IFileSpec.HAVE_REVISION);
 	    return fileSpec;
     }
