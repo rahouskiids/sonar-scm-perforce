@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>com.perforce</groupId>
 			<artifactId>p4java</artifactId>
-			<version>2015.1.1210280</version>
+			<version>2019.1.1939255</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.findbugs</groupId>
